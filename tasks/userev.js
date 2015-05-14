@@ -60,72 +60,111 @@ module.exports = function(grunt) {
           for(var propertyName in grunt.filerev.summary){
 
             if(typeof options.formatOriginalPath === 'function'){
-
               newPath = options.formatOriginalPath(propertyName);
-
             } else {
-
               newPath = propertyName;
-
             }
 
             if(typeof options.formatNewPath === 'function'){
-
               newSrcValue = options.formatNewPath(grunt.filerev.summary[propertyName]);
-
             } else {
-
               newSrcValue = grunt.filerev.summary[propertyName];
-
             }
 
             //populate summary object
             grunt.userevvd.summary[propertyName] = newSrcValue;
 
             if(
-
               /\.js/.test(propertyName) ||
               /\.png/.test(propertyName) ||
               /\.jpg/.test(propertyName) ||
               /\.jpeg/.test(propertyName) ||
               /\.gif/.test(propertyName) ||
               /\.svg/.test(propertyName)
-
             ){
-
               tagToFind = '[src="' + newPath + '"]';
-
               newElem = $(tagToFind).attr('src', newSrcValue);
-
               $(tagToFind).replaceWith( newElem );
-
-            } else if( /\.css/.test(propertyName) ){
-
+            } else if(
+              /\.css/.test(propertyName) ||
+              /\.ico/.test(propertyName)
+            ){
               tagToFind = 'link[href="' + newPath + '"]'
-
               newElem = $(tagToFind).attr('href', newSrcValue);
-
               $(tagToFind).replaceWith( newElem );
-
             }
 
-          }
+          }//end for
 
           // Write the destination file.
           grunt.file.write(f.dest, $.html());
+          //console.log($.html());
+
+          // Print a success message.
+          grunt.log.writeln('Replaced revv\'d assets in ' + f.dest);
+
+        }); //end src for each loop
+
+      } //end HTML TARGET
+
+      else if(target === 'css') {
+        src.forEach(function(file){
+
+          //file is string to filepath
+
+          var modifiedSrc,
+              tagToFind,
+              newPath,
+              newSrcValue,
+              newElem;
+
+          modifiedSrc = grunt.file.read(file);
+
+          for(var propertyName in grunt.filerev.summary){
+
+            if(typeof options.formatOriginalPath === 'function'){
+              newPath = options.formatOriginalPath(propertyName);
+            } else {
+              newPath = propertyName;
+            }
+
+            if(typeof options.formatNewPath === 'function'){
+              newSrcValue = options.formatNewPath(grunt.filerev.summary[propertyName]);
+            } else {
+              newSrcValue = grunt.filerev.summary[propertyName];
+            }
+
+            //populate summary object
+            grunt.userevvd.summary[propertyName] = newSrcValue;
+
+            if(
+              /\.js/.test(propertyName) ||
+              /\.png/.test(propertyName) ||
+              /\.jpg/.test(propertyName) ||
+              /\.jpeg/.test(propertyName) ||
+              /\.gif/.test(propertyName) ||
+              /\.svg/.test(propertyName)
+            ){
+              modifiedSrc = modifiedSrc.replace(newPath, newSrcValue)
+            }
+          }//end for
+
+          // Write the destination file.
+          grunt.file.write(f.dest, modifiedSrc);
+          //console.log($.html());
 
           // Print a success message.
           grunt.log.writeln('Replaced revv\'d assets in ' + f.dest);
 
         });
-
-      } else {
+      } // end CSS TARGET
+      else {
 
         grunt.log.writeln('Target must be named "html". Currently only .html files are supported. In the future, .css will be supported.');
 
       }
 
-    });
+    }); //end files for each loop
 
   });
 
