@@ -145,7 +145,8 @@ module.exports = function(grunt) {
               /\.gif/.test(propertyName) ||
               /\.svg/.test(propertyName)
             ){
-              modifiedSrc = modifiedSrc.replace(newPath, newSrcValue)
+              var re = new RegExp(newPath, 'g');
+              modifiedSrc = modifiedSrc.replace(re, newSrcValue);
             }
           }//end for
 
